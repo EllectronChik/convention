@@ -1,6 +1,6 @@
 package dev.ellectronchik.convention.versioning
 
-import dev.ellectronchik.convention.common.DependantIds
+import dev.ellectronchik.convention.common.DependentIds
 import dev.ellectronchik.convention.versioning.dsl.VersioningExtension
 import dev.ellectronchik.convention.versioning.internal.constants.PluginProps
 import dev.ellectronchik.convention.versioning.internal.extensions.applyAndroidVersion
@@ -18,13 +18,13 @@ class ProjectVersionPlugin : Plugin<Project> {
         val extension = target.extensions.create(PluginProps.EXTENSION_NAME, VersioningExtension::class.java)
 
         target.subprojects.forEach { project ->
-            project.plugins.withId(DependantIds.ANDROID_APP) {
+            project.plugins.withId(DependentIds.ANDROID_APP) {
                 project.applyAndroidVersion(extension)
             }
-            project.plugins.withId(DependantIds.ANDROID_LIBRARY) {
+            project.plugins.withId(DependentIds.ANDROID_LIBRARY) {
                 project.applyTopLevelVersion(extension)
             }
-            project.plugins.withId(DependantIds.KOTLIN_JVM) {
+            project.plugins.withId(DependentIds.KOTLIN_JVM) {
                 project.applyTopLevelVersion(extension)
             }
         }
