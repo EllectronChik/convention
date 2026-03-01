@@ -1,7 +1,7 @@
 package dev.ellectronchik.convention.versioning
 
+import dev.ellectronchik.convention.common.DependantIds
 import dev.ellectronchik.convention.versioning.dsl.VersioningExtension
-import dev.ellectronchik.convention.versioning.internal.constants.DependantIds
 import dev.ellectronchik.convention.versioning.internal.constants.PluginProps
 import dev.ellectronchik.convention.versioning.internal.extensions.applyAndroidVersion
 import dev.ellectronchik.convention.versioning.internal.extensions.applyTopLevelVersion
