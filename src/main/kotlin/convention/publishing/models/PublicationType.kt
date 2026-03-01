@@ -5,5 +5,5 @@ enum class PublicationType(
 ) {
     DEBUG("debug"),
     RELEASE("release"),
-    ALL("all"),
+    ALL("default"),
 }
