@@ -8,14 +8,7 @@ import java.io.File
 class ModulePublishingPluginTest : BasePluginTest() {
     @Test
     fun `CorePublishingPlugin fails when applied to a subproject`() {
-        settingsFile.writeText(
-            """
-            include("$SUB_PROJECT_NAME")
-            """.trimIndent(),
-        )
-
-        val subDir = File(testProjectsDir, SUB_PROJECT_NAME).apply { mkdirs() }
-        File(subDir, GRADLE_BUILD_FILE_NAME).writeText(
+        withSubproject(
             """
             plugins {
                 id("dev.ellectronchik.publishing.config")
@@ -48,7 +41,7 @@ class ModulePublishingPluginTest : BasePluginTest() {
         buildFile.writeText(
             """
             plugins {
-                kotlin("jvm") version "2.0.0"
+                kotlin("jvm")
                 id("dev.ellectronchik.publishing.config")
                 id("dev.ellectronchik.publishing")
             }
@@ -68,7 +61,7 @@ class ModulePublishingPluginTest : BasePluginTest() {
         buildFile.writeText(
             """
             plugins {
-                kotlin("jvm") version "2.0.0"
+                kotlin("jvm")
                 id("dev.ellectronchik.publishing.config")
                 id("dev.ellectronchik.publishing")
             }
@@ -82,24 +75,13 @@ class ModulePublishingPluginTest : BasePluginTest() {
 
     @Test
     fun `Android Library publishing registers correct variant tasks`() {
-        settingsFile.writeText(
-            """
-            pluginManagement {
-                repositories {
-                    google()
-                    mavenCentral()
-                    gradlePluginPortal()
-                }
-            }
-            rootProject.name = "test-project"
-            """.trimIndent(),
-        )
+        val kotlinAndroidPlugin = if (!isAgp9OrNewer) "kotlin(\"android\")" else ""
 
         buildFile.writeText(
             """
             plugins {
                 id ("com.android.library")
-                kotlin("android") version "2.0.0"
+                $kotlinAndroidPlugin
                 id("dev.ellectronchik.publishing.config")
                 id("dev.ellectronchik.publishing")
             }
