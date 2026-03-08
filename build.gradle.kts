@@ -12,11 +12,22 @@ repositories {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(17)
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
+
+    if (project.hasProperty("testGradleVersion")) {
+        systemProperty("testGradleVersion", project.property("testGradleVersion").toString())
+    }
+
+    if (project.hasProperty("testAgpVersion")) {
+        systemProperty("testAgpVersion", project.property("testAgpVersion").toString())
+    }
+    if (project.hasProperty("testKgpVersion")) {
+        systemProperty("testKgpVersion", project.property("testKgpVersion").toString())
+    }
 }
 
 gradlePlugin {
@@ -47,6 +58,9 @@ tasks.named<PluginUnderTestMetadata>("pluginUnderTestMetadata") {
     pluginClasspath.from(testKitPlugins)
 }
 
+val testAgpVersion = project.findProperty("testAgpVersion") as String? ?: "8.13.2"
+val testKgpVersion = project.findProperty("testKgpVersion") as String? ?: "2.3.0"
+
 dependencies {
     compileOnly(gradleApi())
 
@@ -62,7 +76,7 @@ dependencies {
     testImplementation("com.google.truth:truth:1.1.5")
 
     // Make external plugin classes available to functional TestKit builds.
-    testKitPlugins("com.android.tools.build:gradle-api:8.13.0")
-    testKitPlugins("com.android.tools.build:gradle:8.13.0")
-    testKitPlugins("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.0")
+    testKitPlugins("com.android.tools.build:gradle-api:$testAgpVersion")
+    testKitPlugins("com.android.tools.build:gradle:$testAgpVersion")
+    testKitPlugins("org.jetbrains.kotlin:kotlin-gradle-plugin:$testKgpVersion")
 }
