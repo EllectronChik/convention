@@ -69,7 +69,7 @@ dependencies {
     compileOnly("com.android.tools.build:gradle:8.13.0")
 
     // Compile against Kotlin Gradle Plugin APIs used by the convention plugins.
-    compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.0")
+    compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.0")
 
     testImplementation(gradleTestKit())
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
