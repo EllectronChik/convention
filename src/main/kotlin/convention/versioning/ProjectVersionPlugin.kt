@@ -9,6 +9,12 @@ import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
+/**
+ * Root-level versioning plugin.
+ *
+ * Exposes the `versioning` extension on the root project and propagates configured version values
+ * to Android app, Android library, and Kotlin JVM subprojects.
+ */
 class ProjectVersionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         if (target != target.rootProject) {

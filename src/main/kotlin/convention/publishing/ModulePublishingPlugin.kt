@@ -20,6 +20,12 @@ import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
 
 @Suppress("unused")
+/**
+ * Module-level publishing plugin.
+ *
+ * Requires [PluginProps.CORE_PLUGIN_ID] to be applied on the root project and then configures
+ * `maven-publish` for Kotlin JVM and Android library modules.
+ */
 class ModulePublishingPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         if (!target.rootProject.pluginManager.hasPlugin(PluginProps.CORE_PLUGIN_ID)) {
