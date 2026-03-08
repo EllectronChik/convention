@@ -1,7 +1,7 @@
 package dev.ellectronchik.convention.publishing
 
+import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.variant.AndroidComponentsExtension
-import com.android.build.gradle.LibraryExtension
 import dev.ellectronchik.convention.common.DependentIds
 import dev.ellectronchik.convention.publishing.dsl.CorePublishingExtension
 import dev.ellectronchik.convention.publishing.dsl.ModulePublishingExtension
@@ -19,13 +19,13 @@ import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
 
-@Suppress("unused")
 /**
  * Module-level publishing plugin.
  *
  * Requires [PluginProps.CORE_PLUGIN_ID] to be applied on the root project and then configures
  * `maven-publish` for Kotlin JVM and Android library modules.
  */
+@Suppress("unused")
 class ModulePublishingPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         if (!target.rootProject.pluginManager.hasPlugin(PluginProps.CORE_PLUGIN_ID)) {
