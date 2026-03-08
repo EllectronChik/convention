@@ -10,6 +10,7 @@ import dev.ellectronchik.convention.publishing.models.PublicationType
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Provider
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
@@ -18,6 +19,7 @@ import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
 
+@Suppress("unused")
 class ModulePublishingPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         if (!target.rootProject.pluginManager.hasPlugin(PluginProps.CORE_PLUGIN_ID)) {
@@ -29,14 +31,14 @@ class ModulePublishingPlugin : Plugin<Project> {
     }
 
     private fun Project.checkStr(
-        moduleString: String,
-        rootString: String,
         name: String = "resource",
+        moduleStringProvider: () -> String,
+        rootStringProvider: () -> String,
     ) = this.provider {
-        var res = moduleString
+        var res = moduleStringProvider()
 
         fun resUnspecified() = (res == "" || res == "unspecified")
-        if (resUnspecified()) res = rootString
+        if (resUnspecified()) res = rootStringProvider()
         if (resUnspecified()) throw GradleException("No $name was provided for module ${this.name}. ")
         res
     }
@@ -63,17 +65,17 @@ class ModulePublishingPlugin : Plugin<Project> {
                     rootExtension.groupId,
                 ).orElse(
                     target.checkStr(
-                        target.group.toString(),
-                        target.rootProject.group.toString(),
                         "group",
+                        { target.group.toString() },
+                        { target.rootProject.group.toString() },
                     ),
                 )
 
         val versionProvider =
             target.checkStr(
-                target.version.toString(),
-                target.rootProject.version.toString(),
                 "version",
+                { target.version.toString() },
+                { target.rootProject.version.toString() },
             )
 
         val withSourceJarProvider =
@@ -106,15 +108,27 @@ class ModulePublishingPlugin : Plugin<Project> {
                 )
 
         target.pluginManager.withPlugin(DependentIds.KOTLIN_JVM) {
-            target.addPublication(
-                publishing,
-                "java",
-                groupIdProvider,
-                artifactIdProvider,
-                versionProvider,
-                useDokkaProvider,
-                withJavadocJarProvider,
-            )
+            val javaExtension = target.extensions.getByType(JavaPluginExtension::class.java)
+
+            if (withSourceJarProvider.get()) {
+                javaExtension.withSourcesJar()
+            }
+
+            if (withJavadocJarProvider.get() && !useDokkaProvider.get()) {
+                javaExtension.withJavadocJar()
+            }
+
+            target.afterEvaluate {
+                target.addPublication(
+                    publishing,
+                    "java",
+                    groupIdProvider,
+                    artifactIdProvider,
+                    versionProvider,
+                    useDokkaProvider,
+                    withJavadocJarProvider,
+                )
+            }
         }
 
         target.pluginManager.withPlugin(DependentIds.ANDROID_LIBRARY) {
