@@ -1,0 +1,27 @@
+[versions]
+# [LIBRARIES]
+v-android-gradle-api    = "8.13.0"
+v-kotlin-gradle-plugin  = "2.3.0"
+v-dokka-gradle-plugin   = "1.9.20"
+
+# [TESTING]
+v-junit-jupiter         = "5.10.0"
+v-google-truth          = "1.1.5"
+
+# [PLUGINS]
+v-gradle-plugin-publish = "2.1.0"
+
+[libraries]
+dokka-gradle-plugin     = { module = "org.jetbrains.dokka:dokka-gradle-plugin",     version.ref = "v-dokka-gradle-plugin" }
+
+kotlin-gradle-plugin    = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin",   version.ref = "v-kotlin-gradle-plugin" }
+
+android-gradle-api      = { module = "com.android.tools.build:gradle-api",          version.ref = "v-android-gradle-api" }
+android-gradle          = { module = "com.android.tools.build:gradle",              version.ref = "v-android-gradle-api" }
+
+# [TESTING]
+junit-jupiter           = { module = "org.junit.jupiter:junit-jupiter",             version.ref = "v-junit-jupiter" }
+google-truth            = { module = "com.google.truth:truth",                      version.ref = "v-google-truth" }
+
+[plugins]
+gradle-plugin-publish   = { id = "com.gradle.plugin-publish",                       version.ref = "v-gradle-plugin-publish" }
