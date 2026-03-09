@@ -18,7 +18,7 @@ This project provides:
 ## Compatibility
 
 - Gradle wrapper: `8.14`
-- Java toolchain: `21`
+- Java toolchain for plugin build/tests: `17`
 - Compiled against:
   - AGP `8.13.0`
   - Kotlin Gradle Plugin `2.3.0`
@@ -197,10 +197,24 @@ Run compatibility tests for a specific toolchain tuple:
 ./gradlew test -PtestGradleVersion=8.14.2 -PtestAgpVersion=8.13.2 -PtestKgpVersion=2.3.0
 ```
 
-Current CI matrix (`.github/workflows/test.yml`) validates multiple AGP/KGP/Gradle combinations, currently ranging from:
-- Gradle `8.2.1` to `9.1`
-- AGP `8.2.2` to `9.0.0`
-- KGP `1.9.22` to `2.3.0`
+Tested compatibility matrix (`.github/workflows/test.yml`) that is expected to work:
+
+| Gradle | AGP | KGP |
+| --- | --- | --- |
+| `8.2.1` | `8.2.2` | `1.9.22` |
+| `8.4` | `8.3.0` | `1.9.24` |
+| `8.6` | `8.4.0` | `1.9.24` |
+| `8.7` | `8.5.0` | `2.0.0` |
+| `8.7` | `8.6.0` | `2.1.0` |
+| `8.9` | `8.7.0` | `2.1.0` |
+| `8.10.2` | `8.8.0` | `2.1.0` |
+| `8.11.1` | `8.9.0` | `2.1.0` |
+| `8.11.1` | `8.10.0` | `2.2.0` |
+| `8.13` | `8.11.0` | `2.2.0` |
+| `8.13` | `8.12.0` | `2.2.0` |
+| `8.14.2` | `8.13.2` | `2.3.0` |
+| `9.0` | `9.0.0` | `2.3.0` |
+| `9.1` | `9.0.0` | `2.3.0` |
 
 Build plugin artifacts:
 
