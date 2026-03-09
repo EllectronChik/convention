@@ -67,8 +67,14 @@ class ModulePublishingPlugin : Plugin<Project> {
 
         val moduleExtension = target.extensions.create("modulePublishing", ModulePublishingExtension::class.java)
 
+        val artifactIdFallback =
+            target.path
+                .trimStart(':')
+                .replace(':', '-')
+                .takeIf { it.isNotBlank() } ?: target.name
+
         val artifactIdProvider =
-            moduleExtension.artifactId.orElse(target.path.trimStart(':').replace(':', '-'))
+            moduleExtension.artifactId.orElse(artifactIdFallback)
 
         val groupIdProvider =
             moduleExtension.overrideDefaults.groupId
