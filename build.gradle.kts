@@ -62,6 +62,7 @@ val testAgpVersion = project.findProperty("testAgpVersion") as String? ?: "8.13.
 val testKgpVersion = project.findProperty("testKgpVersion") as String? ?: "2.3.0"
 
 dependencies {
+    implementation("org.jetbrains.dokka:dokka-gradle-plugin:1.9.20")
     compileOnly(gradleApi())
 
     // Compile against AGP APIs without bundling them into the plugin artifact.
