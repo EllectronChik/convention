@@ -113,4 +113,70 @@ class ModulePublishingPluginTest : BasePluginTest() {
 
         assertThat(result.output).contains("publishReleasePublicationToMavenLocal")
     }
+
+    @Test
+    fun `kotlin JVM publishing registers Dokka Javadoc tasks when configured`() {
+        buildFile.writeText(
+            """
+            plugins {
+                kotlin("jvm")
+                id("dev.ellectronchik.publishing.config")
+                id("dev.ellectronchik.publishing")
+            }
+            
+            group = "dev.test"
+            version = "1.0.0"
+            
+            corePublishing {
+                withJavadocJar = true
+                useDokka = true
+            }
+            """.trimIndent(),
+        )
+
+        val result = runGradle(TASKS_ARG)
+        assertThat(result.output).contains("dokkaJavadocJar")
+    }
+
+    @Test
+    fun `Android Library publishing registers Dokka Javadoc tasks when configured`() {
+        val kotlinAndroidPlugin = if (!isAgp9OrNewer) "kotlin(\"android\")" else ""
+
+        buildFile.writeText(
+            """
+            plugins {
+                id ("com.android.library")
+                $kotlinAndroidPlugin
+                id("dev.ellectronchik.publishing.config")
+                id("dev.ellectronchik.publishing")
+            }
+            
+            group = "dev.test"
+            version = "1.0.0"
+            
+            android {
+                namespace = "dev.test.lib"
+                compileSdk = 36
+                defaultConfig {
+                    minSdk = 24
+                }
+            }
+            
+            corePublishing {
+                withJavadocJar = true
+                useDokka = true
+            }
+            """.trimIndent(),
+        )
+        File(testProjectsDir, "src/main").mkdirs()
+        File(testProjectsDir, "src/main/AndroidManifest.xml").writeText(
+            """
+            <manifest package="dev.test.library"/>
+            """.trimIndent(),
+        )
+
+        val result = runGradle(TASKS_ARG)
+
+        assertThat(result.output).contains("dokkaJavadocJar")
+    }
 }
