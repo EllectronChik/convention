@@ -21,7 +21,7 @@ This project provides:
 - Java toolchain: `21`
 - Compiled against:
   - AGP `8.13.0`
-  - Kotlin Gradle Plugin `2.0.0`
+  - Kotlin Gradle Plugin `2.3.0`
 
 ## Quick Start (Composite Build)
 
@@ -190,6 +190,17 @@ Run checks locally:
 ```bash
 ./gradlew test
 ```
+
+Run compatibility tests for a specific toolchain tuple:
+
+```bash
+./gradlew test -PtestGradleVersion=8.14.2 -PtestAgpVersion=8.13.2 -PtestKgpVersion=2.3.0
+```
+
+Current CI matrix (`.github/workflows/test.yml`) validates multiple AGP/KGP/Gradle combinations, currently ranging from:
+- Gradle `8.2.1` to `9.1`
+- AGP `8.2.2` to `9.0.0`
+- KGP `1.9.22` to `2.3.0`
 
 Build plugin artifacts:
 
