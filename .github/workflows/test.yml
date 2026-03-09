@@ -9,14 +9,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # AGP 8.0+ requires Gradle 8.0+ and supports Kotlin 1.8.x
-          - gradle-version: "8.0.2"
-            agp-version: "8.0.2"
-            kgp-version: "1.8.22"
-          # AGP 8.1+ requires Gradle 8.0+ and supports Kotlin 1.9.x
-          - gradle-version: "8.1.1"
-            agp-version: "8.1.4"
-            kgp-version: "1.9.10"
           # AGP 8.2+ requires Gradle 8.2+ and supports Kotlin 1.9.x
           - gradle-version: "8.2.1"
             agp-version: "8.2.2"
