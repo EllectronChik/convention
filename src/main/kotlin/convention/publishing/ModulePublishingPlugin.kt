@@ -108,6 +108,8 @@ class ModulePublishingPlugin : Plugin<Project> {
 
             val sourceJarProvider =
                 target.tasks.register<Jar>("sourcesJar") {
+                    group = "build"
+                    description = "Assembles a jar archive containing the main sources."
                     archiveClassifier.set("sources")
                     val javaExtension = target.extensions.getByType<JavaPluginExtension>()
                     from(javaExtension.sourceSets.getByName("main").allSource)
@@ -115,6 +117,8 @@ class ModulePublishingPlugin : Plugin<Project> {
 
             val javadocJarProvider =
                 target.tasks.register<Jar>("javadocJar") {
+                    group = "documentation"
+                    description = "Assembles a jar archive containing the Javadoc API documentation."
                     archiveClassifier.set("javadoc")
                     val javadocTask = target.tasks.named("javadoc")
                     from(javadocTask)
@@ -167,6 +171,8 @@ class ModulePublishingPlugin : Plugin<Project> {
             tasks.named<Jar>("dokkaJavadocJar")
         } else {
             tasks.register<Jar>("dokkaJavadocJar") {
+                group = "documentation"
+                description = "Assembles a jar archive containing the Dokka Javadoc."
                 archiveClassifier.set("javadoc")
                 from(tasks.named("dokkaJavadoc"))
             }
