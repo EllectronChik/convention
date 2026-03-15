@@ -12,11 +12,13 @@ abstract class BasePluginTest {
 
     protected lateinit var settingsFile: File
     protected lateinit var buildFile: File
+    protected lateinit var gradlePropertiesFile: File
 
     @BeforeEach
     fun setup() {
         settingsFile = File(testProjectsDir, GRADLE_SETTINGS_FILE_NAME)
         buildFile = File(testProjectsDir, GRADLE_BUILD_FILE_NAME)
+        gradlePropertiesFile = File(testProjectsDir, GRADLE_PROPERTIES_FILE_NAME)
         setupTestProject()
     }
 
@@ -49,6 +51,10 @@ abstract class BasePluginTest {
                 $kotlinAndroidPlugin
             }
             """.trimIndent(),
+        )
+
+        gradlePropertiesFile.writeText(
+            "org.gradle.jvmargs=-Xmx1g -XX:MaxMetaspaceSize=512m\n",
         )
     }
 
@@ -85,6 +91,7 @@ abstract class BasePluginTest {
 
         const val GRADLE_BUILD_FILE_NAME = "build.gradle.kts"
         const val GRADLE_SETTINGS_FILE_NAME = "settings.gradle.kts"
+        const val GRADLE_PROPERTIES_FILE_NAME = "gradle.properties"
 
         private const val DEFAULT_TEST_GRADLE_VERSION = "8.14.2"
     }

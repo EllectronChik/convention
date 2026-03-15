@@ -27,6 +27,7 @@ abstract class CorePublishingExtension
         val publishVariant: Property<PublicationType> =
             objects.property(PublicationType::class.java).convention(PublicationType.RELEASE)
 
+        /** Sets [publishVariant] to [value]. */
         fun publishVariant(value: PublicationType) {
             publishVariant.set(value)
         }
@@ -34,6 +35,7 @@ abstract class CorePublishingExtension
         /** Group ID used for published artifacts when not overridden per module. */
         val groupId: Property<String> = objects.property(String::class.java)
 
+        /** Sets [groupId] to [value]. */
         fun groupId(value: String) {
             groupId.set(value)
         }
@@ -41,6 +43,7 @@ abstract class CorePublishingExtension
         /** Enables `sources` JAR attachment when supported by the module type. */
         val withSourceJar: Property<Boolean> = objects.property(Boolean::class.java)
 
+        /** Sets [withSourceJar] to [value]. */
         fun withSourceJar(value: Boolean) {
             withSourceJar.set(value)
         }
@@ -48,6 +51,7 @@ abstract class CorePublishingExtension
         /** Enables Javadoc JAR attachment when supported by the module type. */
         val withJavadocJar: Property<Boolean> = objects.property(Boolean::class.java)
 
+        /** Sets [withJavadocJar] to [value]. */
         fun withJavadocJar(value: Boolean) {
             withJavadocJar.set(value)
         }
@@ -55,6 +59,7 @@ abstract class CorePublishingExtension
         /** Uses Dokka-generated Javadoc JAR instead of the default Javadoc task when enabled. */
         val useDokka: Property<Boolean> = objects.property(Boolean::class.java)
 
+        /** Sets [useDokka] to [value]. */
         fun useDokka(value: Boolean) {
             useDokka.set(value)
         }
