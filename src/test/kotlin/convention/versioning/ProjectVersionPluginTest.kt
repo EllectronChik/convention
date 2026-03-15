@@ -11,18 +11,33 @@ class ProjectVersionPluginTest : BasePluginTest() {
     val taskRunArg = ":$SUB_PROJECT_NAME:$taskName"
 
     @Test
-    fun `ProjectVersionPlugin fails when applied to a subproject`() {
+    fun `CoreProjectVersionPlugin fails when applied to a subproject`() {
         withSubproject(
             """
             plugins {
-                id("dev.ellectronchik.versioning")
+                id("dev.ellectronchik.versioning.config")
             }
             """.trimIndent(),
         )
 
         val result = runGradle(TASKS_ARG, expectFailure = true)
 
-        assertThat(result.output).contains("This plugin could be applied only to root-level file")
+        assertThat(result.output).contains("Plugin `dev.ellectronchik.versioning.config` must be applied only to the root project")
+    }
+
+    @Test
+    fun `ProjectVersionPlugin fails when CoreProjectVersionPlugin is not applied to root project`() {
+        buildFile.writeText(
+            """
+            plugins {
+            id("dev.ellectronchik.versioning")
+            }
+            """.trimIndent(),
+        )
+
+        val result = runGradle(TASKS_ARG, expectFailure = true)
+
+        assertThat(result.output).contains("Plugin dev.ellectronchik.versioning.config should be applied to root project")
     }
 
     @Test
@@ -30,7 +45,7 @@ class ProjectVersionPluginTest : BasePluginTest() {
         buildFile.writeText(
             """
             plugins {
-                id("dev.ellectronchik.versioning")
+                id("dev.ellectronchik.versioning.config")
             }
             
             versioning {
@@ -47,6 +62,7 @@ class ProjectVersionPluginTest : BasePluginTest() {
             """
             plugins {
                 kotlin("jvm") 
+                id("dev.ellectronchik.versioning")
             }
             
             tasks.register("$taskName") {
@@ -68,7 +84,7 @@ class ProjectVersionPluginTest : BasePluginTest() {
         buildFile.writeText(
             """
             plugins {
-                id("dev.ellectronchik.versioning")
+                id("dev.ellectronchik.versioning.config")
             }
             
             versioning {
@@ -82,6 +98,7 @@ class ProjectVersionPluginTest : BasePluginTest() {
             """
             plugins {
                 kotlin("jvm")
+                id("dev.ellectronchik.versioning")
             }
             
             version = "9.9.9"
@@ -105,7 +122,7 @@ class ProjectVersionPluginTest : BasePluginTest() {
         buildFile.writeText(
             """
             plugins {
-                id("dev.ellectronchik.versioning")
+                id("dev.ellectronchik.versioning.config")
             }
             
             versioning {
@@ -118,6 +135,7 @@ class ProjectVersionPluginTest : BasePluginTest() {
             """
             plugins {
                 kotlin("jvm")
+                id("dev.ellectronchik.versioning")
             }
             
             tasks.register("$taskName") {
