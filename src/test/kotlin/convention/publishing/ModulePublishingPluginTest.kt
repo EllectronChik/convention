@@ -18,7 +18,7 @@ class ModulePublishingPluginTest : BasePluginTest() {
 
         val result = runGradle(TASKS_ARG, expectFailure = true)
 
-        assertThat(result.output).contains("CorePublishingPlugin must be applied only to the root project")
+        assertThat(result.output).contains("Plugin `dev.ellectronchik.publishing.config` must be applied only to the root project")
     }
 
     @Test
