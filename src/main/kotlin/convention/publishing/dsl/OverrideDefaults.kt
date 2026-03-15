@@ -17,6 +17,7 @@ abstract class OverrideDefaults
         val publishVariant: Property<PublicationType> =
             objects.property(PublicationType::class.java)
 
+        /** Sets [publishVariant] to [value]. */
         fun publishVariant(value: PublicationType) {
             publishVariant.set(value)
         }
@@ -24,6 +25,7 @@ abstract class OverrideDefaults
         /** Group ID override for this module. */
         val groupId: Property<String> = objects.property(String::class.java)
 
+        /** Sets [groupId] to [value]. */
         fun groupId(value: String) {
             groupId.set(value)
         }
@@ -31,6 +33,7 @@ abstract class OverrideDefaults
         /** Enables `sources` JAR for this module when supported. */
         val withSourceJar: Property<Boolean> = objects.property(Boolean::class.java)
 
+        /** Sets [withSourceJar] to [value]. */
         fun withSourceJar(value: Boolean) {
             withSourceJar.set(value)
         }
@@ -38,6 +41,7 @@ abstract class OverrideDefaults
         /** Enables Javadoc JAR for this module when supported. */
         val withJavadocJar: Property<Boolean> = objects.property(Boolean::class.java)
 
+        /** Sets [withJavadocJar] to [value]. */
         fun withJavadocJar(value: Boolean) {
             withJavadocJar.set(value)
         }
@@ -45,6 +49,7 @@ abstract class OverrideDefaults
         /** Uses Dokka-generated Javadoc JAR for this module when enabled. */
         val useDokka: Property<Boolean> = objects.property(Boolean::class.java)
 
+        /** Sets [useDokka] to [value]. */
         fun useDokka(value: Boolean) {
             useDokka.set(value)
         }
