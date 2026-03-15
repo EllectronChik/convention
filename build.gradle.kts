@@ -36,7 +36,15 @@ gradlePlugin {
     vcsUrl.set("https://github.com/ellectronchik/convention.git")
 
     plugins {
-        register("versioning") {
+        register("versioningConfig") {
+            id = "dev.ellectronchik.versioning.config"
+            displayName = "Convention Versioning Config"
+            description = "Declares shared versioning defaults for the entire multi-module project."
+            implementationClass = "dev.ellectronchik.convention.versioning.CoreProjectVersionPlugin"
+            tags.set(listOf("maven", "versioning", "convention"))
+        }
+
+        register("versioningModule") {
             id = "dev.ellectronchik.versioning"
             displayName = "Convention Versioning Plugin"
             description = "Propagates version settings to Kotlin JVM and Android modules automatically."
