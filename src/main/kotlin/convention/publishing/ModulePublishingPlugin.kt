@@ -1,30 +1,36 @@
 package dev.ellectronchik.convention.publishing
 
-import com.android.build.api.dsl.LibraryExtension
-import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import dev.ellectronchik.convention.common.DependentIds
 import dev.ellectronchik.convention.publishing.dsl.CorePublishingExtension
 import dev.ellectronchik.convention.publishing.dsl.ModulePublishingExtension
 import dev.ellectronchik.convention.publishing.internal.constants.PluginProps
-import dev.ellectronchik.convention.publishing.models.PublicationType
+import dev.ellectronchik.convention.publishing.internal.extensions.addPublication
+import dev.ellectronchik.convention.publishing.internal.extensions.configureProviders
+import dev.ellectronchik.convention.publishing.internal.extensions.publishAndroid
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginExtension
-import org.gradle.api.provider.Provider
 import org.gradle.api.publish.PublishingExtension
-import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.getByType
-import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
 
 /**
- * Module-level publishing plugin.
+ * Per-module plugin that reads the root [dev.ellectronchik.convention.publishing.dsl.CorePublishingExtension]
+ * and optional per-module overrides from [dev.ellectronchik.convention.publishing.dsl.ModulePublishingExtension],
+ * and configures Maven publishing for the current subproject.
  *
- * Requires [PluginProps.CORE_PLUGIN_ID] to be applied on the root project and then configures
- * `maven-publish` for Kotlin JVM and Android library modules.
+ * Apply this plugin to every module that should be published:
+ * ```kotlin
+ * // module build.gradle.kts
+ * plugins {
+ *     id("dev.ellectronchik.publishing")
+ * }
+ * ```
+ *
+ * @throws org.gradle.api.GradleException if [CorePublishingPlugin] has not been applied to the root project.
+ * @see dev.ellectronchik.convention.publishing.CorePublishingPlugin
  */
 @Suppress("unused")
 class ModulePublishingPlugin : Plugin<Project> {
@@ -37,23 +43,6 @@ class ModulePublishingPlugin : Plugin<Project> {
         }
     }
 
-    private fun Project.checkStr(
-        propertyName: String = "resource",
-        moduleStringProvider: () -> String,
-        rootStringProvider: () -> String,
-    ): Provider<String> =
-        this.provider {
-            fun String.isUnspecified(): Boolean = (this.isBlank() || this == "unspecified")
-
-            val moduleStr = moduleStringProvider()
-            if (!moduleStr.isUnspecified()) return@provider moduleStr
-
-            val rootStr = rootStringProvider()
-            if (!rootStr.isUnspecified()) return@provider rootStr
-
-            throw GradleException("No $propertyName was provided for module $name.")
-        }
-
     private fun configureModulePublishing(target: Project) {
         target.pluginManager.apply("maven-publish")
 
@@ -65,49 +54,9 @@ class ModulePublishingPlugin : Plugin<Project> {
             publishing.repositories.action()
         }
 
-        val moduleExtension = target.extensions.create("modulePublishing", ModulePublishingExtension::class.java)
+        val moduleExtension = target.extensions.create(PluginProps.MODULE_EXTENSION_NAME, ModulePublishingExtension::class.java)
 
-        val artifactIdFallback =
-            target.path
-                .trimStart(':')
-                .replace(':', '-')
-                .takeIf { it.isNotBlank() } ?: target.name
-
-        val artifactIdProvider =
-            moduleExtension.artifactId.orElse(artifactIdFallback)
-
-        val groupIdProvider =
-            moduleExtension.overrideDefaults.groupId
-                .orElse(rootExtension.groupId)
-                .orElse(
-                    target.checkStr(
-                        "group",
-                        { target.group.toString() },
-                        { target.rootProject.group.toString() },
-                    ),
-                )
-
-        val versionProvider =
-            target.checkStr(
-                "version",
-                { target.version.toString() },
-                { target.rootProject.version.toString() },
-            )
-
-        val withSourceJarProvider =
-            moduleExtension.overrideDefaults.withSourceJar
-                .orElse(rootExtension.withSourceJar)
-                .orElse(target.provider { true })
-
-        val withJavadocJarProvider =
-            moduleExtension.overrideDefaults.withJavadocJar
-                .orElse(rootExtension.withJavadocJar)
-                .orElse(target.provider { false })
-
-        val useDokkaProvider =
-            moduleExtension.overrideDefaults.useDokka
-                .orElse(rootExtension.useDokka)
-                .orElse(target.provider { true })
+        val commonProviders = target.configureProviders(moduleExtension, rootExtension)
 
         target.pluginManager.withPlugin(DependentIds.KOTLIN_JVM) {
             val javaComponentName = "java"
@@ -136,17 +85,13 @@ class ModulePublishingPlugin : Plugin<Project> {
                     publishing = publishing,
                     publicationName = javaComponentName,
                     componentName = javaComponentName,
-                    groupIdProvider = groupIdProvider,
-                    artifactIdProvider = artifactIdProvider,
-                    versionProvider = versionProvider,
-                    useDokkaProvider = useDokkaProvider,
-                    withJavadocJarProvider = withJavadocJarProvider,
+                    providers = commonProviders,
                 ) {
-                    if (withSourceJarProvider.get()) {
+                    if (commonProviders.withSourceJarProvider.get()) {
                         artifact(sourceJarProvider)
                     }
 
-                    if (withJavadocJarProvider.get() && !useDokkaProvider.get()) {
+                    if (commonProviders.withJavadocJarProvider.get() && !commonProviders.useDokkaProvider.get()) {
                         artifact(javadocJarProvider)
                     }
                 }
@@ -158,134 +103,8 @@ class ModulePublishingPlugin : Plugin<Project> {
                 rootExtension = rootExtension,
                 moduleExtension = moduleExtension,
                 publishing = publishing,
-                groupIdProvider = groupIdProvider,
-                artifactIdProvider = artifactIdProvider,
-                versionProvider = versionProvider,
-                withSourceJarProvider = withSourceJarProvider,
-                withJavadocJarProvider = withJavadocJarProvider,
-                useDokkaProvider = useDokkaProvider,
+                providers = commonProviders,
             )
-        }
-    }
-
-    private fun Project.ensureDokkaJar(): TaskProvider<Jar> {
-        pluginManager.apply("org.jetbrains.dokka")
-
-        val existingTask = tasks.findByName("dokkaJavadocJar")
-
-        return if (existingTask != null) {
-            tasks.named<Jar>("dokkaJavadocJar")
-        } else {
-            tasks.register<Jar>("dokkaJavadocJar") {
-                group = "documentation"
-                description = "Assembles a jar archive containing the Dokka Javadoc."
-                archiveClassifier.set("javadoc")
-                from(tasks.named("dokkaJavadoc"))
-            }
-        }
-    }
-
-    private fun Project.publishAndroid(
-        rootExtension: CorePublishingExtension,
-        moduleExtension: ModulePublishingExtension,
-        publishing: PublishingExtension,
-        groupIdProvider: Provider<String>,
-        artifactIdProvider: Provider<String>,
-        versionProvider: Provider<String>,
-        withSourceJarProvider: Provider<Boolean>,
-        withJavadocJarProvider: Provider<Boolean>,
-        useDokkaProvider: Provider<Boolean>,
-    ) {
-        val androidComponents = this.extensions.getByType<LibraryAndroidComponentsExtension>()
-        val androidExtension = this.extensions.getByType<LibraryExtension>()
-
-        val publicationTypeProvider =
-            moduleExtension.overrideDefaults.publishVariant.orElse(rootExtension.publishVariant)
-
-        androidComponents.finalizeDsl {
-            val shouldAttachJavadoc = withJavadocJarProvider.get() && !useDokkaProvider.get()
-            val shouldAttachSources = withSourceJarProvider.get()
-
-            when (
-                val publicationType = publicationTypeProvider.get()
-            ) {
-                PublicationType.DEBUG, PublicationType.RELEASE -> {
-                    androidExtension.publishing {
-                        singleVariant(publicationType.id) {
-                            if (shouldAttachSources) withSourcesJar()
-                            if (shouldAttachJavadoc) withJavadocJar()
-                        }
-                    }
-                }
-
-                PublicationType.ALL -> {
-                    androidExtension.publishing {
-                        multipleVariants(publicationType.id) {
-                            allVariants()
-                            if (shouldAttachSources) withSourcesJar()
-                            if (shouldAttachJavadoc) withJavadocJar()
-                        }
-                    }
-                }
-            }
-        }
-
-        afterEvaluate {
-            val componentName =
-                when (publicationTypeProvider.get()) {
-                    PublicationType.DEBUG -> "debug"
-                    PublicationType.RELEASE -> "release"
-                    PublicationType.ALL -> "default"
-                }
-
-            addPublication(
-                publishing = publishing,
-                publicationName = componentName,
-                componentName = componentName,
-                groupIdProvider = groupIdProvider,
-                artifactIdProvider = artifactIdProvider,
-                versionProvider = versionProvider,
-                useDokkaProvider = useDokkaProvider,
-                withJavadocJarProvider = withJavadocJarProvider,
-            )
-        }
-    }
-
-    private fun Project.addPublication(
-        publishing: PublishingExtension,
-        publicationName: String,
-        componentName: String = publicationName,
-        groupIdProvider: Provider<String>,
-        artifactIdProvider: Provider<String>,
-        versionProvider: Provider<String>,
-        useDokkaProvider: Provider<Boolean>,
-        withJavadocJarProvider: Provider<Boolean>,
-        alsoAttach: (MavenPublication.() -> Unit)? = null,
-    ) {
-        val shouldUseDokka = withJavadocJarProvider.get() && useDokkaProvider.get()
-        val dokkaJavadocJarProvider = if (shouldUseDokka) this.ensureDokkaJar() else null
-
-        val component =
-            components.findByName(componentName)
-                ?: throw GradleException(
-                    "Expected software component '$componentName' was not created for project $path",
-                )
-
-        publishing.publications {
-            if (findByName(publicationName) == null) {
-                register<MavenPublication>(publicationName) {
-                    groupId = groupIdProvider.get()
-                    artifactId = artifactIdProvider.get()
-                    version = versionProvider.get()
-                    from(component)
-
-                    alsoAttach?.invoke(this)
-
-                    if (shouldUseDokka) {
-                        artifact(dokkaJavadocJarProvider)
-                    }
-                }
-            }
         }
     }
 }
