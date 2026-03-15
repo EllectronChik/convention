@@ -17,6 +17,7 @@ abstract class ModulePublishingExtension
         /** Artifact ID for this module publication. Defaults to the Gradle path (`:` replaced with `-`). */
         val artifactId: Property<String> = objects.property(String::class.java)
 
+        /** Sets [artifactId] to [value]. */
         fun artifactId(value: String) {
             artifactId.set(value)
         }
@@ -24,5 +25,6 @@ abstract class ModulePublishingExtension
         /** Overrides selected values inherited from `corePublishing`. */
         val overrideDefaults: OverrideDefaults = objects.newInstance(OverrideDefaults::class.java)
 
+        /** Configures [overrideDefaults] using [action]. */
         fun overrideDefaults(action: OverrideDefaults.() -> Unit) = overrideDefaults.action()
     }
