@@ -25,14 +25,17 @@ abstract class VersioningExtension
         /** Target Android `versionCode` used for application modules. */
         val currentAndroidVersionCode: Property<Int> = objects.property(Int::class.java)
 
+        /** Sets [overrideModuleVersion] to [value]. */
         fun overrideModuleVersion(value: Boolean) {
             overrideModuleVersion.set(value)
         }
 
+        /** Sets [currentVersionName] to [value]. */
         fun currentVersionName(value: String) {
             currentVersionName.set(value)
         }
 
+        /** Sets [currentAndroidVersionCode] to [value]. */
         fun currentAndroidVersionCode(value: Int) {
             currentAndroidVersionCode.set(value)
         }
