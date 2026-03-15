@@ -5,4 +5,6 @@ internal object PluginProps {
 
     const val CURRENT_VERSION_NAME_PROPERTY = "currentVersionName"
     const val CURRENT_ANDROID_VERSION_PROPERTY = "currentAndroidVersionCode"
+
+    const val CORE_PLUGIN_ID = "dev.ellectronchik.versioning.config"
 }
