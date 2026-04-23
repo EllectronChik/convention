@@ -151,4 +151,50 @@ class ProjectVersionPluginTest : BasePluginTest() {
         assertThat(result.output).contains("MissingPropertyException")
         assertThat(result.output).contains(PluginProps.CURRENT_VERSION_NAME_PROPERTY)
     }
+
+    @Test
+    fun `ProjectVersionPlugin applies version to android application defaultConfig`() {
+        buildFile.writeText(
+            """
+            plugins {
+                id("dev.ellectronchik.versioning.config")
+            }
+            
+            versioning {
+                currentVersionName.set("1.2.3")
+                currentAndroidVersionCode.set(202604231)
+                overrideModuleVersion.set(true)
+            }
+            """.trimIndent(),
+        )
+
+        withSubproject(
+            """
+            plugins {
+                id("com.android.application")
+                id("dev.ellectronchik.versioning")
+            }
+                    
+            android {
+                namespace = "com.example.app"
+                compileSdk = 34
+                defaultConfig {
+                    minSdk = 24
+                }
+            }
+            
+            androidComponents {
+                finalizeDsl { dsl ->
+                    println("ANDROID_VERSION_NAME=" + dsl.defaultConfig.versionName)
+                    println("ANDROID_VERSION_CODE=" + dsl.defaultConfig.versionCode)
+                }
+            }
+            """.trimIndent(),
+        )
+
+        val result = runGradle(":$SUB_PROJECT_NAME:help")
+
+        assertThat(result.output).contains("ANDROID_VERSION_NAME=1.2.3")
+        assertThat(result.output).contains("ANDROID_VERSION_CODE=202604231")
+    }
 }
